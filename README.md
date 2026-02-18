@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Aplikasi Sewa Baju - Next.js & Supabase
 
-## Getting Started
+Aplikasi manajemen penyewaan pakaian yang dibangun dengan Next.js 16 dan Supabase.
 
-First, run the development server:
+## Fitur Utama
+
+### Modul Pelanggan
+- Login & Registrasi
+- Melihat koleksi pakaian
+- Menyewa pakaian
+- Riwayat pesanan
+
+### Modul Admin
+- Dashboard admin
+- Manajemen pakaian (CRUD)
+- Manajemen pesanan
+- Manajemen pengguna
+
+## Setup Proyek
+
+### 1. Install Dependencies
+```bash
+npm install
+```
+
+### 2. Setup Supabase
+
+1. Buat proyek baru di [Supabase](https://supabase.com)
+2. Jalankan SQL schema di Supabase SQL Editor:
+   - Buka file `supabase/schema.sql`
+   - Copy semua isi file
+   - Paste dan jalankan di Supabase SQL Editor
+
+### 3. Konfigurasi Environment Variables
+
+Edit file `.env.local` dan isi dengan kredensial Supabase Anda:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+Dapatkan kredensial dari: Supabase Dashboard → Settings → API
+
+### 4. Jalankan Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Struktur Database
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Tabel Users
+- Menyimpan profil pengguna (extends auth.users)
+- Role: admin atau customer
 
-## Learn More
+### Tabel Dresses
+- Informasi pakaian (nama, deskripsi, harga, ukuran, stok)
 
-To learn more about Next.js, take a look at the following resources:
+### Tabel Orders
+- Pesanan penyewaan
+- Status: pending, confirmed, completed, cancelled
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Tabel Order Items
+- Detail item dalam pesanan
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Akses Admin
 
-## Deploy on Vercel
+Untuk membuat akun admin:
+1. Daftar akun baru melalui halaman register
+2. Di Supabase Dashboard → Authentication → Users
+3. Edit user dan ubah `raw_user_meta_data` → `role` menjadi `"admin"`
+4. Atau update langsung di tabel `users`:
+```sql
+UPDATE users SET role = 'admin' WHERE email = 'admin@example.com';
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Teknologi
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Next.js 16 (App Router)
+- React 19
+- TypeScript
+- Tailwind CSS
+- Supabase (Auth, Database, Storage)
+- Zustand (State Management)
+
+## Struktur Folder
+
+```
+├── app/
+│   ├── auth/          # Halaman login & register
+│   ├── customer/      # Halaman pelanggan
+│   ├── admin/         # Halaman admin
+│   └── api/           # API routes
+├── components/        # Komponen React
+├── lib/
+│   ├── supabase/      # Konfigurasi Supabase
+│   └── types.ts       # TypeScript types
+└── supabase/
+    └── schema.sql     # Database schema
+```
+
+## Pengembangan Selanjutnya
+
+- [ ] Implementasi keranjang belanja
+- [ ] Upload gambar pakaian ke Supabase Storage
+- [ ] Filter & pencarian pakaian
+- [ ] Notifikasi email
+- [ ] Payment gateway integration
+- [ ] Laporan & analytics
+# erni
