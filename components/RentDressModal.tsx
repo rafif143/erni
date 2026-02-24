@@ -236,7 +236,7 @@ export default function RentDressModal({ isOpen, onClose, onSuccess, dress }: Re
                 <div className="mt-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
                   <p className="text-xs font-semibold text-blue-700 mb-1">💳 Transfer ke Rekening BCA</p>
                   <p className="text-sm font-bold text-blue-900 tracking-wide">1234567890</p>
-                  <p className="text-xs text-blue-600 mt-0.5">a.n. <span className="font-semibold">Erni</span></p>
+                  <p className="text-xs text-blue-600 mt-0.5">a.n. <span className="font-semibold">Erni Collection</span></p>
                 </div>
               </div>
 
