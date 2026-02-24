@@ -136,15 +136,13 @@ export default async function AdminPage() {
                         </td>
                         <td className="py-4 px-6">
                           <span className={`px-2.5 py-1 rounded-full text-[0.65rem] font-semibold ${order.status === 'pending' ? 'bg-yellow-50 border border-yellow-200 text-yellow-700' :
-                            order.status === 'confirmed' ? 'bg-blue-50 border border-blue-200 text-blue-700' :
-                              order.status === 'rented' ? 'bg-purple-50 border border-purple-200 text-purple-700' :
-                                order.status === 'completed' ? 'bg-emerald-50 border border-emerald-200 text-emerald-700' :
-                                  'bg-red-50 border border-red-200 text-red-700'
+                            order.status === 'confirmed' ? 'bg-purple-50 border border-purple-200 text-purple-700' :
+                              order.status === 'completed' ? 'bg-emerald-50 border border-emerald-200 text-emerald-700' :
+                                'bg-red-50 border border-red-200 text-red-700'
                             }`}>
                             {order.status === 'pending' ? 'Menunggu' :
-                              order.status === 'confirmed' ? 'Dikonfirmasi' :
-                                order.status === 'rented' ? 'Disewa' :
-                                  order.status === 'completed' ? 'Selesai' : 'Dibatalkan'}
+                              order.status === 'confirmed' ? 'Sedang Disewa' :
+                                order.status === 'completed' ? 'Selesai' : 'Dibatalkan'}
                           </span>
                         </td>
                         <td className="py-4 px-6 text-sm text-gray-400">

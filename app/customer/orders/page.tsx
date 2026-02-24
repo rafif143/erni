@@ -60,64 +60,87 @@ export default async function CustomerOrdersPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {orders.map((order, idx) => (
-                  <div
-                    key={order.id}
-                    className="rounded-2xl border border-pink-100 bg-white p-6 animate-fade-up shadow-sm"
-                    style={{ animationDelay: `${idx * 60}ms` }}
-                  >
-                    <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
-                      <div>
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-playfair text-xl font-bold text-gray-900">
-                            Order #{order.id.slice(0, 8)}
-                          </h3>
-                          <span className={`px-2.5 py-1 rounded-full text-[0.65rem] font-semibold ${order.status === 'pending' ? 'bg-yellow-50 border border-yellow-200 text-yellow-700' :
-                            order.status === 'confirmed' ? 'bg-blue-50 border border-blue-200 text-blue-700' :
-                              order.status === 'completed' ? 'bg-emerald-50 border border-emerald-200 text-emerald-700' :
-                                'bg-red-50 border border-red-200 text-red-700'
-                            }`}>
-                            {order.status === 'pending' ? 'Menunggu' :
-                              order.status === 'confirmed' ? 'Dikonfirmasi' :
-                                order.status === 'completed' ? 'Selesai' : 'Dibatalkan'}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-500">
-                          {new Date(order.rental_start).toLocaleDateString('id-ID')} - {new Date(order.rental_end).toLocaleDateString('id-ID')}
-                        </p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          {new Date(order.created_at).toLocaleDateString('id-ID', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-playfair text-3xl font-bold text-gray-900">
-                          Rp {order.total_price.toLocaleString('id-ID')}
-                        </p>
-                      </div>
-                    </div>
+                {orders.map((order, idx) => {
+                  const isOvertime = order.status === 'confirmed' && new Date() > new Date(order.rental_end)
 
-                    <div className="border-t border-pink-100 pt-4">
-                      <h4 className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-gray-400 mb-3">Item Pesanan</h4>
-                      <div className="space-y-2">
-                        {order.order_items?.map((item: any) => (
-                          <div key={item.id} className="flex justify-between items-center bg-[#f8f5f7] border border-pink-50 rounded-xl p-3">
-                            <div>
-                              <p className="font-semibold text-gray-900 text-sm">{item.dress?.name}</p>
-                              <p className="text-xs text-gray-400">Ukuran: {item.size} • Jumlah: {item.quantity}</p>
-                            </div>
-                            <p className="font-playfair font-bold text-gray-900">Rp {item.price.toLocaleString('id-ID')}</p>
+                  return (
+                    <div
+                      key={order.id}
+                      className={`rounded-2xl border bg-white p-6 animate-fade-up shadow-sm ${isOvertime ? 'border-orange-300' : 'border-pink-100'}`}
+                      style={{ animationDelay: `${idx * 60}ms` }}
+                    >
+                      <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4">
+                        <div>
+                          <div className="flex items-center gap-3 mb-2 flex-wrap">
+                            <h3 className="font-playfair text-xl font-bold text-gray-900">
+                              Order #{order.id.slice(0, 8)}
+                            </h3>
+                            {isOvertime ? (
+                              <span className="px-2.5 py-1 rounded-full text-[0.65rem] font-semibold bg-orange-50 border border-orange-300 text-orange-700">
+                                ⚠ Overtime
+                              </span>
+                            ) : (
+                              <span className={`px-2.5 py-1 rounded-full text-[0.65rem] font-semibold ${order.status === 'pending' ? 'bg-yellow-50 border border-yellow-200 text-yellow-700' :
+                                  order.status === 'confirmed' ? 'bg-purple-50 border border-purple-200 text-purple-700' :
+                                    order.status === 'completed' ? 'bg-emerald-50 border border-emerald-200 text-emerald-700' :
+                                      'bg-red-50 border border-red-200 text-red-700'
+                                }`}>
+                                {order.status === 'pending' ? 'Menunggu' :
+                                  order.status === 'confirmed' ? 'Sedang Disewa' :
+                                    order.status === 'completed' ? 'Selesai' : 'Dibatalkan'}
+                              </span>
+                            )}
                           </div>
-                        ))}
+                          <p className="text-sm text-gray-500">
+                            {new Date(order.rental_start).toLocaleDateString('id-ID')} - {new Date(order.rental_end).toLocaleDateString('id-ID')}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {new Date(order.created_at).toLocaleDateString('id-ID', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-playfair text-3xl font-bold text-gray-900">
+                            Rp {order.total_price.toLocaleString('id-ID')}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Overtime Warning */}
+                      {isOvertime && (
+                        <div className="bg-orange-50 border border-orange-300 rounded-xl px-4 py-3 mb-4 flex items-start gap-3">
+                          <span className="text-xl">⚠️</span>
+                          <div>
+                            <p className="text-sm font-bold text-orange-800">Masa sewa sudah berakhir!</p>
+                            <p className="text-xs text-orange-600 mt-0.5">
+                              Segera kembalikan kostum. Batas sewa: {new Date(order.rental_end).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}.
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="border-t border-pink-100 pt-4">
+                        <h4 className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-gray-400 mb-3">Item Pesanan</h4>
+                        <div className="space-y-2">
+                          {order.order_items?.map((item: any) => (
+                            <div key={item.id} className="flex justify-between items-center bg-[#f8f5f7] border border-pink-50 rounded-xl p-3">
+                              <div>
+                                <p className="font-semibold text-gray-900 text-sm">{item.dress?.name}</p>
+                                <p className="text-xs text-gray-400">Ukuran: {item.size} • Jumlah: {item.quantity}</p>
+                              </div>
+                              <p className="font-playfair font-bold text-gray-900">Rp {item.price.toLocaleString('id-ID')}</p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>
