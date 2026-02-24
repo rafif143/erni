@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Dress } from '@/lib/types'
 import { calculateDaysBetween, getPriceBreakdown } from '@/lib/pricing'
 import { uploadPaymentProof } from '@/lib/storage'
+import { createOrderAndDecrementStock as createOrderAction } from '@/app/actions/order'
 
 interface RentDressModalProps {
   isOpen: boolean
@@ -88,48 +89,20 @@ export default function RentDressModal({ isOpen, onClose, onSuccess, dress }: Re
         return
       }
 
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert({
-          user_id: user.id,
-          status: 'pending',
-          total_price: totalPrice,
-          rental_start: formData.rental_start,
-          rental_end: formData.rental_end,
-          payment_proof: paymentUrl,
-        })
-        .select()
-        .single()
+      // Pakai server action supaya stock update jalan di server
+      const result = await createOrderAction({
+        dress_id: dress.id,
+        size: formData.size,
+        quantity: formData.quantity,
+        rental_start: formData.rental_start,
+        rental_end: formData.rental_end,
+        total_price: totalPrice,
+        payment_proof: paymentUrl!,
+        current_stock: dress.stock,
+      })
 
-      if (orderError) {
-        setError(orderError.message)
-        setLoading(false)
-        return
-      }
-
-      const { error: itemError } = await supabase
-        .from('order_items')
-        .insert({
-          order_id: order.id,
-          dress_id: dress.id,
-          quantity: formData.quantity,
-          price: totalPrice,
-          size: formData.size,
-        })
-
-      if (itemError) {
-        setError(itemError.message)
-        setLoading(false)
-        return
-      }
-
-      const { error: stockError } = await supabase
-        .from('dresses')
-        .update({ stock: dress.stock - formData.quantity })
-        .eq('id', dress.id)
-
-      if (stockError) {
-        setError(stockError.message)
+      if (result.error) {
+        setError(result.error)
         setLoading(false)
         return
       }
@@ -259,6 +232,11 @@ export default function RentDressModal({ isOpen, onClose, onSuccess, dress }: Re
                     <p>Format: JPG, PNG, WEBP, GIF</p>
                     <p>Maksimal: 5MB</p>
                   </div>
+                </div>
+                <div className="mt-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+                  <p className="text-xs font-semibold text-blue-700 mb-1">💳 Transfer ke Rekening BCA</p>
+                  <p className="text-sm font-bold text-blue-900 tracking-wide">1234567890</p>
+                  <p className="text-xs text-blue-600 mt-0.5">a.n. <span className="font-semibold">Erni Tepos</span></p>
                 </div>
               </div>
 
