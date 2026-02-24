@@ -102,7 +102,7 @@ export default function CustomerSidebar() {
               🎪
             </div>
             <h1 className="font-playfair text-xl font-bold text-gray-900 leading-tight">
-              Sewa <em className="italic text-[#e8628a]">Kostum</em>
+              Erny <em className="italic text-[#e8628a]">Collection</em>
             </h1>
           </div>
         </div>
