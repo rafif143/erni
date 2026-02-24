@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sewa Baju - Aplikasi Penyewaan Pakaian",
-  description: "Sistem manajemen penyewaan pakaian",
+  title: "Sewa Kostum Karnaval - Aplikasi Penyewaan Kostum",
+  description: "Sistem manajemen penyewaan kostum karnaval",
 };
 
 export default function RootLayout({

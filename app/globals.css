@@ -1,13 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --pink-50: #fdf2f8;
-  --pink-100: #fce7f3;
-  --pink-500: #ec4899;
-  --pink-600: #db2777;
-  --pink-700: #be185d;
+  --background: #f8f5f7;
+  --foreground: #1a1a2e;
 }
 
 @theme inline {
@@ -18,8 +13,9 @@
 }
 
 body {
-  background: linear-gradient(135deg, #fdf2f8 0%, #ffffff 50%, #f3e8ff 100%);
-  background-attachment: fixed;
+  background: #f8f5f7;
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
 }

@@ -32,96 +32,128 @@ export default async function AdminPage() {
     .limit(10)
 
   return (
-    <AdminLayout>
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h2>
-        <p className="text-gray-600">Ringkasan aktivitas aplikasi</p>
-      </div>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Nunito:wght@300;400;600;700&display=swap');
+        .font-playfair { font-family: 'Playfair Display', serif; }
+        .font-nunito   { font-family: 'Nunito', sans-serif; }
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-pink-100">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-              </svg>
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(12px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-up { animation: fadeUp 0.5s ease both; }
+      `}</style>
+      <AdminLayout>
+        <div className="font-nunito min-h-screen bg-[#f8f5f7] relative">
+          <div className="relative z-10 px-4 md:px-8 pb-8 pt-16 md:pt-8 animate-fade-up">
+            {/* Header */}
+            <div className="mb-8">
+              <p className="text-[0.6rem] font-semibold tracking-[0.3em] uppercase text-[#e8628a] mb-2">
+                Panel Administrasi
+              </p>
+              <h2 className="font-playfair text-4xl font-bold text-gray-900 leading-tight">
+                Dashboard <em className="italic text-[#e8628a]">Admin</em>
+              </h2>
+            </div>
+
+            {/* Divider */}
+            <div className="flex items-center gap-4 mb-8">
+              <div className="flex-1 h-px bg-pink-200" />
+              <div className="flex gap-1">
+                {[0, 1, 2].map(i => <div key={i} className="w-1 h-1 rounded-full bg-pink-300" />)}
+              </div>
+              <div className="flex-1 h-px bg-pink-200" />
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="rounded-2xl border border-pink-100 bg-white p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-pink-50 border border-pink-100 flex items-center justify-center text-2xl">
+                    👗
+                  </div>
+                </div>
+                <h3 className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-gray-400 mb-2">Total Kostum</h3>
+                <p className="font-playfair text-4xl font-bold text-gray-900">
+                  {dresses?.length || 0}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-pink-100 bg-white p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-2xl">
+                    📋
+                  </div>
+                </div>
+                <h3 className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-gray-400 mb-2">Total Pesanan</h3>
+                <p className="font-playfair text-4xl font-bold text-gray-900">
+                  {orders?.length || 0}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-pink-100 bg-white p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-2xl">
+                    ⏳
+                  </div>
+                </div>
+                <h3 className="text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-gray-400 mb-2">Pesanan Pending</h3>
+                <p className="font-playfair text-4xl font-bold text-gray-900">
+                  {orders?.filter(o => o.status === 'pending').length || 0}
+                </p>
+              </div>
+            </div>
+
+            {/* Recent Orders Table */}
+            <div className="rounded-2xl border border-pink-100 bg-white overflow-hidden shadow-sm">
+              <div className="p-6 border-b border-pink-100">
+                <h3 className="font-playfair text-2xl font-bold text-gray-900">
+                  Pesanan <em className="italic text-[#e8628a]">Terbaru</em>
+                </h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-pink-100">
+                      {['ID', 'Pelanggan', 'Total', 'Status', 'Tanggal'].map(h => (
+                        <th key={h} className="text-left py-4 px-6 text-[0.65rem] font-semibold tracking-[0.15em] uppercase text-gray-400">
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders?.map((order) => (
+                      <tr key={order.id} className="border-b border-pink-50 last:border-0 hover:bg-pink-50/50 transition-colors">
+                        <td className="py-4 px-6 text-sm font-mono text-gray-400">{order.id.slice(0, 8)}</td>
+                        <td className="py-4 px-6 text-sm text-gray-700">{order.user?.email}</td>
+                        <td className="py-4 px-6">
+                          <span className="font-playfair text-sm font-bold text-gray-900">
+                            Rp {order.total_price.toLocaleString('id-ID')}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className={`px-2.5 py-1 rounded-full text-[0.65rem] font-semibold ${order.status === 'pending' ? 'bg-yellow-50 border border-yellow-200 text-yellow-700' :
+                            order.status === 'confirmed' ? 'bg-blue-50 border border-blue-200 text-blue-700' :
+                              order.status === 'completed' ? 'bg-emerald-50 border border-emerald-200 text-emerald-700' :
+                                'bg-red-50 border border-red-200 text-red-700'
+                            }`}>
+                            {order.status}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6 text-sm text-gray-400">
+                          {new Date(order.created_at).toLocaleDateString('id-ID')}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
-          <h3 className="text-gray-500 text-sm font-medium mb-1">Total Pakaian</h3>
-          <p className="text-4xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-            {dresses?.length || 0}
-          </p>
         </div>
-
-        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-pink-100">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </div>
-          </div>
-          <h3 className="text-gray-500 text-sm font-medium mb-1">Total Pesanan</h3>
-          <p className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-            {orders?.length || 0}
-          </p>
-        </div>
-
-        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-pink-100">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-          </div>
-          <h3 className="text-gray-500 text-sm font-medium mb-1">Pesanan Pending</h3>
-          <p className="text-4xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
-            {orders?.filter(o => o.status === 'pending').length || 0}
-          </p>
-        </div>
-      </div>
-
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-pink-100">
-        <h3 className="text-xl font-bold mb-6 text-gray-900">Pesanan Terbaru</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-pink-100">
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">ID</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Pelanggan</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Total</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Status</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Tanggal</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders?.map((order) => (
-                <tr key={order.id} className="border-b border-pink-50 hover:bg-pink-50/50 transition">
-                  <td className="py-3 px-4 text-sm font-mono text-gray-600">{order.id.slice(0, 8)}</td>
-                  <td className="py-3 px-4 text-sm text-gray-900">{order.user?.email}</td>
-                  <td className="py-3 px-4 text-sm font-semibold text-gray-900">
-                    Rp {order.total_price.toLocaleString('id-ID')}
-                  </td>
-                  <td className="py-3 px-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      order.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                      order.status === 'confirmed' ? 'bg-blue-100 text-blue-700' :
-                      order.status === 'completed' ? 'bg-green-100 text-green-700' :
-                      'bg-red-100 text-red-700'
-                    }`}>
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-sm text-gray-600">
-                    {new Date(order.created_at).toLocaleDateString('id-ID')}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </AdminLayout>
+      </AdminLayout>
+    </>
   )
 }

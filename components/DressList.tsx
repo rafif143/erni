@@ -8,89 +8,173 @@ import { useRouter } from 'next/navigation'
 export default function DressList({ dresses }: { dresses: Dress[] }) {
   if (dresses.length === 0) {
     return (
-      <div className="text-center py-16">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-pink-100 rounded-full mb-4">
-          <svg className="w-8 h-8 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-          </svg>
+      <>
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Nunito:wght@300;400;600;700&display=swap');
+          .font-playfair { font-family: 'Playfair Display', serif; }
+          .font-nunito   { font-family: 'Nunito', sans-serif; }
+        `}</style>
+        <div className="font-nunito rounded-2xl border border-pink-100 bg-white p-16 text-center shadow-sm">
+          <div className="text-6xl mb-4">🎭</div>
+          <p className="font-playfair text-2xl italic text-gray-300 mb-2">Koleksi kosong</p>
+          <p className="text-xs text-gray-400 tracking-wide">Sabar ya, koleksi baru segera hadir</p>
         </div>
-        <p className="text-gray-500 text-lg">Belum ada pakaian tersedia</p>
-      </div>
+      </>
     )
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {dresses.map((dress) => (
-        <DressCard key={dress.id} dress={dress} />
-      ))}
-    </div>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Nunito:wght@300;400;600;700;800&display=swap');
+        .font-playfair { font-family: 'Playfair Display', serif; }
+        .font-nunito   { font-family: 'Nunito', sans-serif; }
+
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shine {
+          0% { left: -100%; }
+          100% { left: 200%; }
+        }
+
+        .card-fadeup { animation: fadeUp 0.5s ease both; }
+
+        .dress-card {
+          transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .dress-card:hover {
+          transform: translateY(-6px);
+          border-color: rgba(232,98,138,0.3);
+          box-shadow: 0 12px 40px rgba(232,98,138,0.1);
+        }
+
+        .shine-btn {
+          position: relative;
+          overflow: hidden;
+        }
+        .shine-btn::after {
+          content: '';
+          position: absolute;
+          top: 0; left: -100%;
+          width: 60%; height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+          transform: skewX(-20deg);
+        }
+        .shine-btn:hover::after {
+          animation: shine 0.6s ease forwards;
+        }
+
+        .img-zoom img {
+          transition: transform 0.5s ease;
+        }
+        .img-zoom:hover img {
+          transform: scale(1.06);
+        }
+      `}</style>
+
+      <div className="font-nunito grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+        {dresses.map((dress, i) => (
+          <DressCard key={dress.id} dress={dress} index={i} />
+        ))}
+      </div>
+    </>
   )
 }
 
-function DressCard({ dress }: { dress: Dress }) {
+const CATEGORY_COLORS: Record<string, string> = {
+  default: 'bg-pink-50 border-pink-200 text-[#e8628a]',
+  pesta: 'bg-purple-50 border-purple-200 text-purple-700',
+  lucu: 'bg-blue-50 border-blue-200 text-blue-700',
+  hewan: 'bg-emerald-50 border-emerald-200 text-emerald-700',
+  hero: 'bg-cyan-50 border-cyan-200 text-cyan-700',
+  budaya: 'bg-amber-50 border-amber-200 text-amber-700',
+}
+
+function DressCard({ dress, index }: { dress: Dress; index: number }) {
   const [imageError, setImageError] = useState(false)
   const [isRentModalOpen, setIsRentModalOpen] = useState(false)
   const router = useRouter()
 
-  const handleRentSuccess = () => {
-    router.push('/customer/orders')
-  }
+  const handleRentSuccess = () => router.push('/customer/orders')
+
+  const catKey = dress.category?.toLowerCase() ?? 'default'
+  const badgeColor = CATEGORY_COLORS[catKey] ?? CATEGORY_COLORS.default
+  const isOutOfStock = dress.stock === 0
 
   return (
     <>
-      <div className="group bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-pink-100">
-        <div className="relative h-64 bg-gradient-to-br from-pink-100 to-purple-100 overflow-hidden">
+      <div
+        className="dress-card card-fadeup rounded-2xl border border-pink-100 bg-white overflow-hidden shadow-sm"
+        style={{ animationDelay: `${index * 70}ms` }}
+      >
+        {/* Image area */}
+        <div className="img-zoom relative h-56 bg-[#f8f5f7] overflow-hidden">
           {dress.image_url && !imageError ? (
             <img
               src={dress.image_url}
               alt={dress.name}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+              className="w-full h-full object-cover"
               onError={() => setImageError(true)}
               loading="lazy"
             />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <svg className="w-16 h-16 text-pink-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+              <span className="text-5xl opacity-20">🎭</span>
             </div>
           )}
-          <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
-            <span className="text-xs font-semibold text-pink-600">{dress.category}</span>
+
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent opacity-40" />
+
+          {/* Category badge */}
+          <div className={`absolute top-3 left-3 ${badgeColor} text-[0.65rem] font-semibold tracking-wide px-3 py-1.5 rounded-full border backdrop-blur-sm`}>
+            {dress.category}
           </div>
+
+          {/* Out of stock overlay */}
+          {isOutOfStock && (
+            <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center">
+              <div className="bg-red-50 border border-red-200 text-red-600 font-semibold text-sm px-5 py-2.5 rounded-xl -rotate-3">
+                Stok Habis
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* Content */}
         <div className="p-5">
-          <h3 className="font-bold text-lg mb-2 text-gray-900">{dress.name}</h3>
-          <p className="text-sm text-gray-600 mb-3 line-clamp-2 min-h-[40px]">
+          <h3 className="font-playfair text-lg font-bold text-gray-900 leading-tight mb-1.5">{dress.name}</h3>
+          <p className="text-xs text-gray-500 font-medium line-clamp-2 min-h-[32px] mb-4">
             {dress.description}
           </p>
-          <div className="flex items-baseline gap-1 mb-3">
-            <span className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+
+          {/* Price */}
+          <div className="bg-pink-50 border border-pink-200 rounded-xl px-4 py-3 mb-4 flex items-baseline gap-1.5">
+            <span className="font-playfair text-xl font-bold text-gray-900">
               Rp {dress.price.toLocaleString('id-ID')}
             </span>
-            <span className="text-sm text-gray-500">/ 2 hari</span>
+            <span className="text-xs text-gray-400 font-semibold">/ 2 hari</span>
           </div>
-          <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
-            <div className="flex items-center gap-1">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
-              <span>Stok: {dress.stock}</span>
+
+          {/* Meta row */}
+          <div className="flex items-center gap-2 mb-5">
+            <div className="flex items-center gap-1.5 bg-[#f8f5f7] border border-pink-100 rounded-lg px-2.5 py-1.5 text-[0.65rem] font-semibold text-gray-500">
+              📦 Stok: {dress.stock}
             </div>
-            <div className="flex items-center gap-1">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-              </svg>
-              <span>{dress.size.join(', ')}</span>
+            <div className="flex items-center gap-1.5 bg-[#f8f5f7] border border-pink-100 rounded-lg px-2.5 py-1.5 text-[0.65rem] font-semibold text-gray-500">
+              📐 {dress.size.join(', ')}
             </div>
           </div>
+
+          {/* CTA */}
           <button
             onClick={() => setIsRentModalOpen(true)}
-            disabled={dress.stock === 0}
-            className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-3 rounded-xl font-semibold hover:from-pink-600 hover:to-purple-700 transition shadow-lg shadow-pink-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isOutOfStock}
+            className="shine-btn w-full bg-[#e8628a] hover:bg-[#f07898] text-white font-nunito text-[0.75rem] font-semibold tracking-[0.15em] uppercase py-3.5 rounded-xl transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:translate-y-0 shadow-sm"
           >
-            {dress.stock === 0 ? 'Stok Habis' : 'Sewa Sekarang'}
+            {isOutOfStock ? 'Stok Habis' : 'Sewa Sekarang'}
           </button>
         </div>
       </div>
@@ -104,4 +188,3 @@ function DressCard({ dress }: { dress: Dress }) {
     </>
   )
 }
-
