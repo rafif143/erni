@@ -15,6 +15,7 @@ export default async function CustomerPage() {
     .from('dresses')
     .select('*')
     .eq('available', true)
+    .or('ii_deteled.is.null,ii_deteled.eq.false')
     .order('created_at', { ascending: false })
 
   return (

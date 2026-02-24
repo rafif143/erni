@@ -23,7 +23,12 @@ export default function DressesClientPage({ initialDresses }: { initialDresses: 
 
   const handleDelete = async (dress: Dress) => {
     if (!confirm(`Yakin ingin menghapus "${dress.name}"?`)) return
-    const { error } = await supabase.from('dresses').delete().eq('id', dress.id)
+
+    const { error } = await supabase
+      .from('dresses')
+      .update({ ii_deteled: true })
+      .eq('id', dress.id)
+
     if (error) alert('Gagal menghapus: ' + error.message)
     else router.refresh()
   }

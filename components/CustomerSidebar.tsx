@@ -76,7 +76,7 @@ export default function CustomerSidebar() {
 
       {/* Sidebar */}
       <aside className={`
-        font-nunito w-64 min-h-screen fixed left-0 top-0 flex flex-col bg-white border-r border-pink-100 relative overflow-hidden z-50
+        font-nunito w-64 min-h-screen fixed left-0 top-0 flex flex-col bg-white border-r border-pink-100 overflow-hidden z-50
         transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         md:translate-x-0
@@ -85,7 +85,7 @@ export default function CustomerSidebar() {
         {/* Mobile close */}
         <button
           onClick={() => setIsOpen(false)}
-          className="md:hidden absolute top-4 right-4 z-10 p-2 hover:bg-pink-50 rounded-xl transition text-gray-400"
+          className="md:hidden absolute top-4 right-4 z-20 p-2 hover:bg-pink-50 rounded-xl transition text-gray-400"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
