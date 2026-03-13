@@ -9,7 +9,7 @@ interface CreateOrderInput {
     rental_start: string
     rental_end: string
     total_price: number
-    payment_proof: string
+    payment_proof?: string | null
     current_stock: number
 }
 
@@ -45,7 +45,7 @@ export async function createOrderAndDecrementStock(input: CreateOrderInput) {
             total_price: input.total_price,
             rental_start: input.rental_start,
             rental_end: input.rental_end,
-            payment_proof: input.payment_proof,
+            payment_proof: input.payment_proof || null,
         })
         .select()
         .single()

@@ -6,6 +6,9 @@ import RentDressModal from './RentDressModal'
 import { useRouter } from 'next/navigation'
 
 export default function DressList({ dresses }: { dresses: Dress[] }) {
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 8
+
   if (dresses.length === 0) {
     return (
       <>
@@ -75,10 +78,44 @@ export default function DressList({ dresses }: { dresses: Dress[] }) {
       `}</style>
 
       <div className="font-nunito grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-        {dresses.map((dress, i) => (
+        {dresses.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((dress, i) => (
           <DressCard key={dress.id} dress={dress} index={i} />
         ))}
       </div>
+
+      {dresses.length > itemsPerPage && (
+        <div className="flex justify-center items-center gap-2 mt-12 pb-8">
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="w-10 h-10 flex items-center justify-center rounded-xl border border-pink-100 bg-white text-gray-400 hover:text-[#e8628a] hover:border-pink-200 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            ←
+          </button>
+          
+          {Array.from({ length: Math.ceil(dresses.length / itemsPerPage) }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`w-10 h-10 rounded-xl text-xs font-bold transition-all ${
+                currentPage === i + 1
+                  ? 'bg-[#e8628a] text-white shadow-lg shadow-pink-100 scale-110'
+                  : 'bg-white border border-pink-100 text-gray-400 hover:text-[#e8628a] hover:border-pink-200'
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(dresses.length / itemsPerPage)))}
+            disabled={currentPage === Math.ceil(dresses.length / itemsPerPage)}
+            className="w-10 h-10 flex items-center justify-center rounded-xl border border-pink-100 bg-white text-gray-400 hover:text-[#e8628a] hover:border-pink-200 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            →
+          </button>
+        </div>
+      )}
     </>
   )
 }
@@ -162,9 +199,6 @@ function DressCard({ dress, index }: { dress: Dress; index: number }) {
           <div className="flex items-center gap-2 mb-5">
             <div className="flex items-center gap-1.5 bg-[#f8f5f7] border border-pink-100 rounded-lg px-2.5 py-1.5 text-[0.65rem] font-semibold text-gray-500">
               📦 Stok: {dress.stock}
-            </div>
-            <div className="flex items-center gap-1.5 bg-[#f8f5f7] border border-pink-100 rounded-lg px-2.5 py-1.5 text-[0.65rem] font-semibold text-gray-500">
-              📐 {dress.size.join(', ')}
             </div>
           </div>
 

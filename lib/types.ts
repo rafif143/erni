@@ -41,5 +41,6 @@ export interface OrderItem {
   quantity: number
   price: number // Harga dalam Rupiah (integer)
   size: string
+  compentation?: string | null
   dress?: Dress
 }

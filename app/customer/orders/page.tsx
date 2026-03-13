@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import CustomerLayout from '@/components/CustomerLayout'
+import PaymentUploader from '@/components/PaymentUploader'
 
 export default async function CustomerOrdersPage() {
   const supabase = await createClient()
@@ -61,7 +62,15 @@ export default async function CustomerOrdersPage() {
             ) : (
               <div className="space-y-4">
                 {orders.map((order, idx) => {
-                  const isOvertime = order.status === 'confirmed' && new Date() > new Date(order.rental_end)
+                  const today = new Date()
+                  today.setHours(0, 0, 0, 0)
+                  const endDate = new Date(order.rental_end)
+                  endDate.setHours(0, 0, 0, 0)
+                  const isOvertime = order.status === 'confirmed' && today > endDate
+                  const diffTime = today.getTime() - endDate.getTime()
+                  const overtimeDays = isOvertime ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) : 0
+                  const overtimeFee = overtimeDays * (order.total_price * 0.1)
+                  const finalTotal = order.total_price + overtimeFee
 
                   return (
                     <div
@@ -80,13 +89,24 @@ export default async function CustomerOrdersPage() {
                                 ⚠ Overtime
                               </span>
                             ) : (
-                              <span className={`px-2.5 py-1 rounded-full text-[0.65rem] font-semibold ${order.status === 'pending' ? 'bg-yellow-50 border border-yellow-200 text-yellow-700' :
-                                  order.status === 'confirmed' ? 'bg-purple-50 border border-purple-200 text-purple-700' :
-                                    order.status === 'completed' ? 'bg-emerald-50 border border-emerald-200 text-emerald-700' :
-                                      'bg-red-50 border border-red-200 text-red-700'
+                              <span className={`px-2.5 py-1 rounded-full text-[0.65rem] font-semibold ${
+                                  order.status === 'pending'
+                                    ? !order.payment_proof 
+                                      ? 'bg-yellow-50 border border-yellow-200 text-yellow-700'
+                                      : order.payment_proof === 'WAITING'
+                                        ? 'bg-orange-50 border border-orange-200 text-orange-700'
+                                        : 'bg-blue-50 border border-blue-200 text-blue-700'
+                                    : order.status === 'confirmed' ? 'bg-purple-50 border border-purple-200 text-purple-700' :
+                                      order.status === 'completed' ? 'bg-emerald-50 border border-emerald-200 text-emerald-700' :
+                                        'bg-red-50 border border-red-200 text-red-700'
                                 }`}>
-                                {order.status === 'pending' ? 'Menunggu' :
-                                  order.status === 'confirmed' ? 'Sedang Disewa' :
+                                {order.status === 'pending'
+                                  ? !order.payment_proof 
+                                    ? 'Menunggu Konfirmasi Stok' 
+                                    : order.payment_proof === 'WAITING' 
+                                      ? 'Menunggu Pembayaran' 
+                                      : 'Menunggu Verifikasi Pembayaran'
+                                  : order.status === 'confirmed' ? 'Sedang Disewa' :
                                     order.status === 'completed' ? 'Selesai' : 'Dibatalkan'}
                               </span>
                             )}
@@ -105,9 +125,20 @@ export default async function CustomerOrdersPage() {
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="font-playfair text-3xl font-bold text-gray-900">
-                            Rp {order.total_price.toLocaleString('id-ID')}
-                          </p>
+                          {isOvertime ? (
+                            <div className="flex flex-col items-end">
+                              <p className="font-playfair text-sm text-gray-400 line-through">
+                                Rp {order.total_price.toLocaleString('id-ID')}
+                              </p>
+                              <p className="font-playfair text-3xl font-bold text-orange-600">
+                                Rp {finalTotal.toLocaleString('id-ID')}
+                              </p>
+                            </div>
+                          ) : (
+                            <p className="font-playfair text-3xl font-bold text-gray-900">
+                              Rp {order.total_price.toLocaleString('id-ID')}
+                            </p>
+                          )}
                         </div>
                       </div>
 
@@ -119,6 +150,8 @@ export default async function CustomerOrdersPage() {
                             <p className="text-sm font-bold text-orange-800">Masa sewa sudah berakhir!</p>
                             <p className="text-xs text-orange-600 mt-0.5">
                               Segera kembalikan kostum. Batas sewa: {new Date(order.rental_end).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}.
+                              <br className="my-1" />
+                              <span className="font-bold block mt-1">Denda Keterlambatan (10% x {overtimeDays} hari): Rp {overtimeFee.toLocaleString('id-ID')}</span>
                             </p>
                           </div>
                         </div>
@@ -131,11 +164,21 @@ export default async function CustomerOrdersPage() {
                             <div key={item.id} className="flex justify-between items-center bg-[#f8f5f7] border border-pink-50 rounded-xl p-3">
                               <div>
                                 <p className="font-semibold text-gray-900 text-sm">{item.dress?.name}</p>
-                                <p className="text-xs text-gray-400">Ukuran: {item.size} • Jumlah: {item.quantity}</p>
+                                <p className="text-xs text-gray-400">Jumlah: {item.quantity}</p>
+                                {item.compentation && (
+                                  <p className="text-[0.65rem] text-red-500 font-bold mt-1 bg-red-50 border border-red-100 px-2 py-0.5 rounded-lg inline-block">
+                                    ⚠️ {item.compentation}
+                                  </p>
+                                )}
                               </div>
                               <p className="font-playfair font-bold text-gray-900">Rp {item.price.toLocaleString('id-ID')}</p>
                             </div>
                           ))}
+                          {/* Payment Uploader for Waiting Proof */}
+                          {order.status === 'pending' && order.payment_proof === 'WAITING' && (
+                            <PaymentUploader orderId={order.id} />
+                          )}
+
                         </div>
                       </div>
                     </div>

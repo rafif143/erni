@@ -22,7 +22,7 @@ export default function AddDressModal({ isOpen, onClose, onSuccess }: AddDressMo
     price: '',
     category: '',
     stock: '',
-    size: [] as string[],
+    size: ['Standard'],
   })
 
   const supabase = createClient()
@@ -68,7 +68,6 @@ export default function AddDressModal({ isOpen, onClose, onSuccess }: AddDressMo
   }
 
   if (!isOpen) return null
-  const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 
   return (
     <>
@@ -151,26 +150,14 @@ export default function AddDressModal({ isOpen, onClose, onSuccess }: AddDressMo
                 className="modal-input w-full bg-[#f8f5f7] border border-pink-100 rounded-lg px-4 py-3.5 text-[0.85rem] text-gray-900 transition-colors duration-200" placeholder="10" required min="0" />
             </div>
 
-            <div>
-              <label className="block text-[0.65rem] font-semibold tracking-[0.18em] uppercase text-gray-500 mb-2">Ukuran Tersedia *</label>
-              <div className="flex flex-wrap gap-2">
-                {sizes.map((size) => (
-                  <button key={size} type="button" onClick={() => handleSizeToggle(size)}
-                    className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${formData.size.includes(size)
-                      ? 'bg-[#e8628a] text-white shadow-sm'
-                      : 'bg-[#f8f5f7] border border-pink-100 text-gray-500 hover:bg-pink-50 hover:text-gray-700'
-                      }`}>{size}</button>
-                ))}
-              </div>
-              {formData.size.length === 0 && <p className="text-xs text-red-500 mt-1.5">Pilih minimal 1 ukuran</p>}
-            </div>
+              {/* Size UI removed */}
 
             <div className="flex gap-3 pt-4">
               <button type="button" onClick={onClose}
                 className="flex-1 px-6 py-3.5 bg-[#f8f5f7] border border-pink-100 text-gray-500 rounded-xl text-[0.75rem] font-semibold tracking-[0.1em] uppercase hover:bg-pink-50 hover:text-gray-700 transition-all duration-200">
                 Batal
               </button>
-              <button type="submit" disabled={loading || formData.size.length === 0}
+              <button type="submit" disabled={loading}
                 className="flex-1 px-6 py-3.5 bg-[#e8628a] hover:bg-[#f07898] text-white rounded-xl text-[0.75rem] font-semibold tracking-[0.1em] uppercase transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:translate-y-0 shadow-sm">
                 {loading ? 'Menyimpan...' : 'Simpan'}
               </button>
