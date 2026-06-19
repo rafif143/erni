@@ -160,6 +160,33 @@ export default function AdminSidebar() {
           })}
         </nav>
 
+        {/* Contact Info */}
+        <div className="relative z-10 mx-4 mb-4 p-4 bg-pink-50/50 border border-pink-100/70 rounded-2xl text-[11px] font-nunito space-y-3">
+          <div className="flex gap-2.5">
+            <span className="text-[#e8628a] text-xs flex-shrink-0">📍</span>
+            <div>
+              <p className="font-semibold text-gray-700 leading-none mb-1">Alamat Toko</p>
+              <p className="text-gray-500 leading-normal">
+                glanggang sentono rt 15 rw 05 no 10 beji, pasuruan
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2.5">
+            <span className="text-[#e8628a] text-xs flex-shrink-0">📞</span>
+            <div>
+              <p className="font-semibold text-gray-700 leading-none mb-1">No. HP / WhatsApp</p>
+              <a 
+                href="https://wa.me/6281231029294" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-[#e8628a] hover:underline font-medium"
+              >
+                081231029294
+              </a>
+            </div>
+          </div>
+        </div>
+
         {/* Logout */}
         <div className="relative z-10 p-4 border-t border-pink-100">
           <button

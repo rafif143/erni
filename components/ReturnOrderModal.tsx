@@ -20,7 +20,8 @@ export default function ReturnOrderModal({ isOpen, onClose, onSuccess, order }: 
       dressName: item.dress?.name || 'Kostum',
       damagePercent: 0,
       compensation: 0,
-      note: ''
+      note: '',
+      price: item.price
     })) || []
   )
 
@@ -28,7 +29,21 @@ export default function ReturnOrderModal({ isOpen, onClose, onSuccess, order }: 
 
   const handleUpdateItem = (index: number, field: string, value: any) => {
     const newData = [...itemsData]
-    newData[index] = { ...newData[index], [field]: value }
+    if (field === 'damagePercent') {
+      let percent = parseInt(value) || 0
+      if (percent < 0) percent = 0
+      if (percent > 100) percent = 100
+      
+      // Auto-calculate compensation: (percent / 100) * rental price
+      const calculatedCompensation = Math.round((percent / 100) * newData[index].price)
+      newData[index] = {
+        ...newData[index],
+        damagePercent: percent,
+        compensation: calculatedCompensation
+      }
+    } else {
+      newData[index] = { ...newData[index], [field]: value }
+    }
     setItemsData(newData)
   }
 
@@ -111,7 +126,10 @@ export default function ReturnOrderModal({ isOpen, onClose, onSuccess, order }: 
               {itemsData.map((item, idx) => (
                 <div key={item.id} className="bg-[#f8f5f7] border border-pink-100 rounded-xl p-5 space-y-4">
                   <div className="flex justify-between items-center">
-                    <p className="font-bold text-gray-900">{item.dressName}</p>
+                    <div>
+                      <p className="font-bold text-gray-900">{item.dressName}</p>
+                      <p className="text-[10px] text-gray-400 mt-0.5">Harga Sewa: Rp {item.price.toLocaleString('id-ID')}</p>
+                    </div>
                     <span className="text-[0.6rem] bg-pink-100 text-[#e8628a] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Item {idx + 1}</span>
                   </div>
 

@@ -1,8 +1,20 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import AdminLayout from '@/components/AdminLayout'
+import DateRangeFilter from '@/components/DateRangeFilter'
 
-export default async function AdminPage() {
+interface PageProps {
+  searchParams: Promise<{
+    startDate?: string
+    endDate?: string
+  }>
+}
+
+export default async function AdminPage({ searchParams }: PageProps) {
+  const resolvedParams = await searchParams
+  const startDate = resolvedParams.startDate
+  const endDate = resolvedParams.endDate
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -26,11 +38,25 @@ export default async function AdminPage() {
     .or('ii_deteled.is.null,ii_deteled.eq.false')
     .order('created_at', { ascending: false })
 
-  const { data: orders } = await supabase
+  let query = supabase
     .from('orders')
     .select('*, user:users(*)')
     .order('created_at', { ascending: false })
-    .limit(10)
+
+  if (startDate) {
+    query = query.gte('created_at', `${startDate}T00:00:00.000Z`)
+  }
+  if (endDate) {
+    query = query.lte('created_at', `${endDate}T23:59:59.999Z`)
+  }
+
+  if (!startDate && !endDate) {
+    query = query.limit(50)
+  } else {
+    query = query.limit(500)
+  }
+
+  const { data: orders } = await query
 
   return (
     <>
@@ -66,6 +92,9 @@ export default async function AdminPage() {
               </div>
               <div className="flex-1 h-px bg-pink-200" />
             </div>
+
+            {/* Date Range Filter */}
+            <DateRangeFilter />
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -108,10 +137,15 @@ export default async function AdminPage() {
 
             {/* Recent Orders Table */}
             <div className="rounded-2xl border border-pink-100 bg-white overflow-hidden shadow-sm">
-              <div className="p-6 border-b border-pink-100">
+              <div className="p-6 border-b border-pink-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
                 <h3 className="font-playfair text-2xl font-bold text-gray-900">
-                  Pesanan <em className="italic text-[#e8628a]">Terbaru</em>
+                  Pesanan {startDate || endDate ? <em className="italic text-[#e8628a]">Terfilter</em> : <em className="italic text-[#e8628a]">Terbaru</em>}
                 </h3>
+                {(startDate || endDate) && (
+                  <span className="text-[11px] bg-pink-50 border border-pink-100 text-[#e8628a] px-3.5 py-1.5 rounded-xl font-semibold self-start sm:self-auto">
+                    Rentang: {startDate ? new Date(startDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Awal'} - {endDate ? new Date(endDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Kini'}
+                  </span>
+                )}
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
